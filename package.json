@@ -1,17 +1,36 @@
 {
-  "name": "smarttomato",
+  "name": "smart-tomato",
   "version": "1.0.0",
-  "description": "",
+  "description": "一款极致优雅的智能番茄钟软件",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dist": "electron-builder"
   },
-  "keywords": [],
-  "author": "",
+  "build": {
+    "appId": "com.yourname.smarttomato",
+    "productName": "智能番茄钟",
+    "artifactName": "${productName}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "author": "Your Name",
   "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
-    "electron": "^41.1.0"
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
   }
 }
