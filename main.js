@@ -6,7 +6,8 @@ function createWindow () {
   const win = new BrowserWindow({
     width: 850,           // 窗口宽度
     height: 600,          // 窗口高度
-    title: "智能番茄钟 Pro",
+    title: "智能番茄钟",
+    icon: path.join(__dirname, 'assets/icon.ico'),
     autoHideMenuBar: true, // 隐藏丑陋的默认菜单栏
     resizable: true,      // 允许调整大小
     webPreferences: {
