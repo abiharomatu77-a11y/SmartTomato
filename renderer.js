@@ -103,6 +103,7 @@ let reminderInterval = 0;
 let timeToDelete = null;     
 let historyIndexToDelete = null; 
 let currentHistoryPage = 1;
+let targetEndTime = 0;
 
 // 初始化 SVG
 const circle = document.getElementById('progress-circle');
@@ -226,7 +227,6 @@ function selectTimeByMinutes(minutes, btn) {
   circle.style.strokeDashoffset = 0; updateDisplay(currentSeconds);
 }
 
-// 计时器核心
 function startTimer() {
   if (totalSeconds === 0) return alert("请先选择一个时间！");
   isRunning = true;
@@ -237,21 +237,38 @@ function startTimer() {
 
   reminderInterval = Math.max(Math.floor(totalSeconds * 0.25), 1);
 
+  // 一按下开始，立刻算出“目标结束时间”的绝对时间戳
+  targetEndTime = Date.now() + totalSeconds * 1000;
+
   timerInterval = setInterval(() => {
+    const now = Date.now(); 
+
     if (!isOvertime) {
-      currentSeconds--; updateDisplay(currentSeconds);
-      circle.style.strokeDashoffset = circumference - (currentSeconds / totalSeconds) * circumference;
+      // 没超时：目标时间 - 现在
+      currentSeconds = Math.round((targetEndTime - now) / 1000);
+
+      // 时间到了，切换状态
       if (currentSeconds <= 0) {
+        currentSeconds = 0;
         isOvertime = true;
+        
         circle.style.stroke = CONFIG.colors.danger;
         document.getElementById('time-display').style.color = CONFIG.colors.danger; 
-        document.getElementById('mini-time-display').style.color = CONFIG.colors.danger;
+        document.getElementById('mini-time-display').style.color = CONFIG.colors.danger; 
         sendNotification(CONFIG.text.notifyTimeUp, CONFIG.text.notifyTimeUpDesc);
       }
+      
+      updateDisplay(currentSeconds);
+      circle.style.strokeDashoffset = circumference - (currentSeconds / totalSeconds) * circumference;
+
     } else {
-      overtimeSeconds++; updateDisplay(overtimeSeconds);
+      // 超时了：直接用 现在 - 目标时间！(极致精准，无缝衔接)
+      overtimeSeconds = Math.round((now - targetEndTime) / 1000);
+      
+      updateDisplay(overtimeSeconds);
       circle.style.strokeDashoffset = circumference - ((overtimeSeconds % reminderInterval) / reminderInterval) * circumference;
-      if (overtimeSeconds % reminderInterval === 0) {
+      
+      if (overtimeSeconds > 0 && overtimeSeconds % reminderInterval === 0) {
         sendNotification(CONFIG.text.notifyTimeover, `你已经额外耗费了计划 ${(overtimeSeconds / reminderInterval) * 25}% 的时间！建议休息！`);
       }
     }

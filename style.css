@@ -71,5 +71,5 @@ body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Robot
 
 /* 小浮窗容器样式 */
 #mini-view { display: none; height: 100vh;  background-color: #ffffff; padding: 20px; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; justify-content: center;}
-#mini-time-display { font-size: 48px; font-weight: bold; color: #10b981; font-family: 'Consolas'; margin-bottom: 20px;}
-#btn-exit-mini { -webkit-app-region: no-drag; background-color: #ef4444; width: 200px; margin: 0 auto;}
+#mini-time-display { font-size: 36px; font-weight: bold; color: #10b981; font-family: 'Consolas'; margin-bottom: 20px;}
+#btn-exit-mini { -webkit-app-region: no-drag; background-color: #ef4444; width: 150px; height: 40px; margin: 0 auto;display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; border-radius: 8px; cursor: pointer;}
