@@ -8,9 +8,9 @@
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "com.yourname.smarttomato",
-    "productName": "智能番茄钟",
-    "artifactName": "${productName}.${ext}",
+    "appId": "com.wxm.smarttomato",
+    "productName": "SmartTomato",
+    "artifactName": "${productName}_v${version}_Setup.${ext}",
     "directories": {
       "output": "dist"
     },
@@ -27,7 +27,7 @@
       "createStartMenuShortcut": true
     }
   },
-  "author": "Your Name",
+  "author": "wxm",
   "license": "ISC",
   "devDependencies": {
     "electron": "^30.0.0",

@@ -32,6 +32,7 @@
 
         <button id="btn-start" class="btn btn-start" onclick="startTimer()"></button>
         <button id="btn-finish" class="btn btn-finish" onclick="finishTask()"></button>
+        <button id="btn-enter-mini" class="btn btn-enter-mini" onclick="enterMiniMode()"></button>
       </div>
 
       <div id="view-history" class="view-section">
@@ -99,8 +100,14 @@
   <div id="custom-context-menu">
     <div class="context-menu-item" id="btn-delete-time"></div>
   </div>
+
   <div id="history-context-menu" style="display: none; position: fixed; z-index: 1000; background: white; border-radius: 8px; padding: 4px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid #e5e7eb; width: 80px;">
     <div class="context-menu-item" id="btn-delete-history"></div>
+  </div>
+
+  <div id="mini-view">
+    <div id="mini-time-display">25:00</div>
+    <button id="btn-exit-mini" class="btn btn-exit-mini" onclick="exitMiniMode()"></button>
   </div>
 
   <script src="renderer.js"></script>

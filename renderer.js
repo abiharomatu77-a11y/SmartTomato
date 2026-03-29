@@ -5,7 +5,7 @@ const CONFIG = {
   colors: { danger: '#ef4444', dark: '#1f2937' },
   text: {
     // 侧边栏与标题
-    titleApp: 'Smart Tomato Pro',
+    titleApp: 'Smart Tomato',
     navTimer: '🕒 计时 (Timer)',
     navHistory: '📊 历史 (History)',
     navSettings: '⚙️ 设置 (Settings)',
@@ -14,6 +14,9 @@ const CONFIG = {
     placeholderTask: '你现在正在做什么任务？',
     btnStart: '▶ 开始专注',
     btnFinish: '✅ 完成任务',
+    btnEnterMini: '🪟 小浮窗',
+    btnExitMini: '还原',
+
     
     // 历史界面
     titleHistory: '📊 专注历史记录',
@@ -64,6 +67,8 @@ function applyConfig() {
   document.getElementById('task-input').placeholder = t.placeholderTask;
   document.getElementById('btn-start').innerText = t.btnStart;
   document.getElementById('btn-finish').innerText = t.btnFinish;
+  document.getElementById('btn-enter-mini').innerText = t.btnEnterMini;
+  document.getElementById('btn-exit-mini').innerText = t.btnExitMini;
   
   // 历史界面
   document.getElementById('history-title').innerText = t.titleHistory;
@@ -119,6 +124,7 @@ window.onload = function() {
     Notification.requestPermission();
   }
   document.getElementById('auto-start-checkbox').checked = localStorage.getItem('tomatoAutoStart') === 'true';
+  updateDisplay(0);
 };
 
 document.addEventListener('click', function() {
@@ -140,7 +146,9 @@ function updateDisplay(seconds) {
   const s = seconds % 60;
   let str = h > 0 ? `${h.toString().padStart(2, '0')}:` : '';
   str += `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  
   document.getElementById('time-display').innerText = str;
+  document.getElementById('mini-time-display').innerText = str;
 }
 
 function sendNotification(title, body) {
@@ -237,6 +245,7 @@ function startTimer() {
         isOvertime = true;
         circle.style.stroke = CONFIG.colors.danger;
         document.getElementById('time-display').style.color = CONFIG.colors.danger; 
+        document.getElementById('mini-time-display').style.color = CONFIG.colors.danger;
         sendNotification(CONFIG.text.notifyTimeUp, CONFIG.text.notifyTimeUpDesc);
       }
     } else {
@@ -264,7 +273,10 @@ function finishTask() {
   localStorage.setItem('tomatoHistory', JSON.stringify(historyData));
 
   isRunning = false; isOvertime = false; totalSeconds = 0; currentSeconds = 0; overtimeSeconds = 0;
-  circle.style.stroke = '#10b981'; document.getElementById('time-display').style.color = CONFIG.colors.dark;
+  circle.style.stroke = '#10b981'; 
+  document.getElementById('time-display').style.color = CONFIG.colors.dark;
+  document.getElementById('mini-time-display').style.color = CONFIG.colors.dark;
+
   circle.style.strokeDashoffset = 0; updateDisplay(0);
   
   document.getElementById('time-options').style.display = 'flex';
@@ -348,4 +360,25 @@ function exportToCSV() {
 function toggleAutoStart(isEnable) {
   ipcRenderer.send('toggle-auto-start', isEnable);
   localStorage.setItem('tomatoAutoStart', isEnable);
+}
+
+// 进入小浮窗模式
+function enterMiniMode() {
+  // 1. 隐藏主界面，显示小浮窗
+  document.querySelector('.app-container').style.display = 'none';
+  document.getElementById('mini-view').style.display = 'block';
+  
+  // 2. 告诉主进程去改变窗口大小
+  ipcRenderer.send('enter-mini-mode');
+}
+
+// 退出小浮窗模式（绑定给 mini-view 里的还原按钮）
+function exitMiniMode() {
+  // 1. 隐藏小浮窗，恢复主界面
+  document.getElementById('mini-view').style.display = 'none';
+  // 注意：你的 app-container 原本的 display 是 block 还是 flex？如果是 flex 这里就写 flex
+  document.querySelector('.app-container').style.display = 'flex'; 
+  
+  // 2. 告诉主进程还原窗口大小
+  ipcRenderer.send('exit-mini-mode');
 }

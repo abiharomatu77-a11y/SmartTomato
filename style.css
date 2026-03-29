@@ -15,7 +15,7 @@ body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Robot
 #task-input:focus { outline: none; border-color: #4f46e5; }
 .timer-container { position: relative; width: 240px; height: 240px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
 .progress-ring__circle { transition: stroke-dashoffset 1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
-#time-display { position: absolute; font-size: 48px; font-weight: bold; color: #1f2937; }
+#time-display { position: absolute; font-size: 42px; font-weight: bold; color: #1f2937; }
 
 /* --- 时间选择与控制按钮 --- */
 .time-options { display: flex; gap: 10px; margin-bottom: 30px; }
@@ -23,9 +23,11 @@ body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Robot
 .time-btn:hover { border-color: #4f46e5; color: #4f46e5; }
 .time-btn.active { background-color: #4f46e5; color: white; border-color: #4f46e5; }
 .btn { padding: 12px 40px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 18px; color: white; transition: 0.2s; }
-.btn-start { background-color: #10b981; } 
+.btn-start { background-color: #10b981; width: 250px; } 
 .btn-start:hover { background-color: #059669; }
-.btn-finish { background-color: #ef4444; display: none; } 
+.btn-finish { background-color: #ef4444; width: 250px; display: none; } 
+.btn-enter-mini { background-color: #3b82f6; width: 250px;  margin-top: 15px; }
+.btn-exit-mini { background-color: #3b82f6; width: 250px; }
 
 /* --- 自定义时间弹窗样式 --- */
 #custom-time-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100; }
@@ -66,3 +68,8 @@ body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Robot
 .page-btn:hover:not(:disabled) { background: #f3f4f6; color: #1f2937; border-color: #9ca3af; }
 .page-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f9fafb; }
 .page-info { font-size: 14px; color: #6b7280; font-weight: bold; min-width: 80px; text-align: center; }
+
+/* 小浮窗容器样式 */
+#mini-view { display: none; height: 100vh;  background-color: #ffffff; padding: 20px; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; justify-content: center;}
+#mini-time-display { font-size: 48px; font-weight: bold; color: #10b981; font-family: 'Consolas'; margin-bottom: 20px;}
+#btn-exit-mini { -webkit-app-region: no-drag; background-color: #ef4444; width: 200px; margin: 0 auto;}
