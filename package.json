@@ -1,5 +1,5 @@
 {
-  "name": "smart-tomato",
+  "name": "overtime-focus",
   "version": "1.1.0",
   "description": "一款极致优雅的智能番茄钟软件",
   "main": "main.js",
@@ -30,7 +30,7 @@
       {
         "provider": "github",
         "owner": "abiharomatu77-a11y",
-        "repo": "SmartTomato"
+        "repo": "Overtime_Focus"
       }
     ]
   },

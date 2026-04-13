@@ -1,4 +1,4 @@
-# 🍅 智能番茄钟 (Smart Tomato)
+# 🍅 超时专注 (Overtime Focus)
 
 一款基于 Electron 打造的极简桌面专注工具。**与传统番茄钟最大的不同在于：我们拥有独特的“超时记录”功能，保护你来之不易的心流状态。**
 
@@ -18,7 +18,7 @@
 ## 📥 快速开始
 
 **普通用户下载体验：**
-前往本仓库的 [Releases](https://github.com/abiharomatu77-a11y/SmartTomato/releases) 页面，下载最新的 `智能番茄钟 v1.1.0 Setup.exe`，双击即可运行。
+前往本仓库的 [Releases](https://github.com/abiharomatu77-a11y/SmartTomato/releases) 页面，下载最新的版本，双击即可运行。
 
 **开发者本地运行：**
 

@@ -13,7 +13,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 850,           // 窗口宽度
     height: 600,          // 窗口高度
-    title: "智能番茄钟",  // 窗口标题
+    title: "超时专注",  // 窗口标题
     icon: path.join(__dirname, 'assets/icon.ico'), // 窗口图标
     autoHideMenuBar: true, // 隐藏默认菜单栏
     resizable: true,      // 允许调整大小
@@ -42,7 +42,7 @@ app.whenReady().then(() => {
   const iconPath = path.join(__dirname, 'assets/icon.ico'); 
   tray = new Tray(iconPath);
 
-  tray.setToolTip('智能番茄钟');
+  tray.setToolTip('超时专注');
 
   // 3. 构建右键菜单
   const contextMenu = Menu.buildFromTemplate([
@@ -130,7 +130,7 @@ function checkForUpdates() {
     dialog.showMessageBox({
       type: 'info',
       title: '升级提示',
-      message: `智能番茄钟 ${info.version} 已经下载完毕！`,
+      message: `超时专注 ${info.version} 已经下载完毕！`,
       detail: '是否现在重启软件并安装更新？（如果不立即重启，将在下次启动时自动安装）',
       buttons: ['立即重启安装', '稍后提醒我']
     }).then((result) => {

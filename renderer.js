@@ -5,7 +5,7 @@ const CONFIG = {
   colors: { danger: '#ef4444', dark: '#1f2937' },
   text: {
     // 侧边栏与标题
-    titleApp: 'Smart Tomato',
+    titleApp: 'Overtime Focus',
     navTimer: '🕒 计时 (Timer)',
     navHistory: '📊 历史 (History)',
     navSettings: '⚙️ 设置 (Settings)',
@@ -46,8 +46,9 @@ const CONFIG = {
     labelSecond: '秒',
     notifyTimeUp: '时间到！',
     notifyTimeUpDesc: '预定时间已用完，现已进入超时记录模式。',
+    notifyTimeover: '超时提醒！',
     alertNoData: '当前没有记录可以导出哦！',
-    exportFilename: '智能番茄钟_历史记录.csv',
+    exportFilename: '超时专注_历史记录.csv',
   },
   numbers: { historyPerPage: 10, maxHistoryRecords: 5000, reminderPercentage: 25 }
 };
@@ -138,7 +139,8 @@ function switchView(viewName) {
   document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-card').forEach(c => c.classList.remove('active'));
   document.getElementById('view-' + viewName).classList.add('active');
-  if (viewName !== 'settings') document.getElementById('nav-' + viewName).classList.add('active');
+  const navEl = document.getElementById('nav-' + viewName);
+  if (navEl) navEl.classList.add('active');
 }
 
 function updateDisplay(seconds) {
@@ -203,7 +205,7 @@ function renderTimeButton(minutes) {
 
 document.getElementById('btn-delete-time').onclick = function() {
   if (!timeToDelete) return;
-  let saved = JSON.parse(localStorage.getItem('tomatoTimesArray') || '[]').filter(t => t !== timeToDelete);
+  let saved = JSON.parse(localStorage.getItem('tomatoTimesArray') || '[]').filter(t => t !== timeToDelete.toString());
   localStorage.setItem('tomatoTimesArray', JSON.stringify(saved));
   document.querySelectorAll('.time-btn:not(#btn-add-time)').forEach(b => b.remove());
   saved.forEach(t => renderTimeButton(t));
