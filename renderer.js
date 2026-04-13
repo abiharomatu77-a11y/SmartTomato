@@ -113,6 +113,8 @@ const circumference = radius * 2 * Math.PI;
 circle.style.strokeDasharray = `${circumference} ${circumference}`;
 circle.style.strokeDashoffset = 0;
 
+const miniView = document.getElementById('mini-view');
+
 // ================= 生命周期与事件 =================
 window.onload = function() {
   applyConfig(); // 激活配置引擎
@@ -385,7 +387,7 @@ function toggleAutoStart(isEnable) {
 function enterMiniMode() {
   // 1. 隐藏主界面，显示小浮窗
   document.querySelector('.app-container').style.display = 'none';
-  document.getElementById('mini-view').style.display = 'block';
+  document.getElementById('mini-view').style.display = 'flex';
   
   // 2. 告诉主进程去改变窗口大小
   ipcRenderer.send('enter-mini-mode');
@@ -401,3 +403,24 @@ function exitMiniMode() {
   // 2. 告诉主进程还原窗口大小
   ipcRenderer.send('exit-mini-mode');
 }
+
+// 替换掉之前 miniView.addEventListener 那段
+let dockTimer = null;
+
+// 监听整个文档的移入
+document.addEventListener('mouseenter', () => {
+    if (document.getElementById('mini-view').style.display === 'flex') {
+        clearTimeout(dockTimer); // 只要进来了，就取消缩回计划
+        ipcRenderer.send('mini-undock');
+    }
+});
+
+// 监听整个文档的移出
+document.addEventListener('mouseleave', () => {
+    if (document.getElementById('mini-view').style.display === 'flex') {
+        // 增加 300ms 延迟，防止鼠标划过边缘或标题栏时误触
+        dockTimer = setTimeout(() => {
+            ipcRenderer.send('mini-dock');
+        }, 300); 
+    }
+});

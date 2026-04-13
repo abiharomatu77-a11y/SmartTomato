@@ -1,9 +1,14 @@
 const { app, BrowserWindow, ipcMain, Tray, Menu, dialog } = require('electron');
-const path = require('path'); // 如果你还没加这一行，顺便加上，一会儿找图标路径要用
+const path = require('path');
 const { autoUpdater } = require('electron-updater');
+const { screen } = require('electron'); // 需要引入 screen 模块
 
-let mainWindow; // 你原来应该就有这个变量
-let normalBounds; // 【新增】用来保存主界面时的窗口大小和位置
+// 定义两个死值，不要从当前 bounds 获取
+const MINI_WIDTH = 250;
+const MINI_HEIGHT = 150;
+
+let mainWindow;
+let normalBounds;
 
 let tray = null; 
 let isQuitting = false;
@@ -100,11 +105,10 @@ ipcMain.on('enter-mini-mode', () => {
 // 2. 接收退出小浮窗的指令
 ipcMain.on('exit-mini-mode', () => {
   if (mainWindow) {
-    // 恢复原来的大小和位置
+    mainWindow.setOpacity(1.0);
     if (normalBounds) {
       mainWindow.setBounds(normalBounds, true); 
     }
-    // 取消置顶
     mainWindow.setAlwaysOnTop(false); 
   }
 });
@@ -150,3 +154,26 @@ function checkForUpdates() {
   // 开始执行检查！
   autoUpdater.checkForUpdates();
 }
+
+ipcMain.on('mini-dock', () => {
+  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
+  mainWindow.setBounds({
+    x: screenWidth - 30, // 稍微多留一点（比如30px），确保鼠标能稳定抓到它
+    y: 200,
+    width: 250,   
+    height: 150  
+  }, true);
+  mainWindow.setOpacity(0.6);
+});
+
+ipcMain.on('mini-undock', () => {
+  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
+  mainWindow.setBounds({
+    x: screenWidth - MINI_WIDTH - 5, // 展开后的位置
+    y: 200,
+    width: MINI_WIDTH, 
+    height: MINI_HEIGHT
+  }, true);
+  mainWindow.setOpacity(1.0);
+});
+
