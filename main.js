@@ -1,11 +1,14 @@
+// 库文件
 const { app, BrowserWindow, ipcMain, Tray, Menu, dialog } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
-const { screen } = require('electron'); // 需要引入 screen 模块
+const { screen } = require('electron');
 
-// 定义两个死值，不要从当前 bounds 获取
 const MINI_WIDTH = 250;
 const MINI_HEIGHT = 150;
+
+let miniModeTimer = null;
+let isDocked = true;
 
 let mainWindow;
 let normalBounds;
@@ -14,42 +17,37 @@ let tray = null;
 let isQuitting = false;
 
 function createWindow() {
-  // 创建主窗口
   mainWindow = new BrowserWindow({
-    width: 850,           // 窗口宽度
-    height: 600,          // 窗口高度
-    title: "超时专注",  // 窗口标题
-    icon: path.join(__dirname, 'assets/icon.ico'), // 窗口图标
-    autoHideMenuBar: true, // 隐藏默认菜单栏
-    resizable: true,      // 允许调整大小
+    width: 850,           // 宽度
+    height: 600,          // 高度
+    title: "超时专注",  // 标题
+    icon: path.join(__dirname, 'assets/icon.ico'), // 图标
+    autoHideMenuBar: true, // 菜单栏
+    resizable: true,      // 调整大小
     webPreferences: {
-      nodeIntegration: true,     // 允许在渲染进程使用 Node API
-      contextIsolation: false,    // 配合 nodeIntegration 使用
+      nodeIntegration: true,
+      contextIsolation: false,
       backgroundThrottling: false
     },
   });
-  mainWindow.loadFile('index.html');// 加载界面文件
-  normalBounds = mainWindow.getBounds();// 保存初始窗口位置和大小
+  mainWindow.loadFile('index.html');
+  normalBounds = mainWindow.getBounds();// 保存初始位置
   mainWindow.on('close', (event) => {
-    // 如果不是真正要退出
     if (!isQuitting) {
-      event.preventDefault(); // 阻止默认的彻底关闭行为
-      mainWindow.hide();      // 只是把窗口隐藏起来
+      event.preventDefault(); // 阻止彻底关闭
+      mainWindow.hide();      // 窗口隐藏
     }
   });
 }
 
-// 当软件准备好时，打开窗口
+// 打开窗口
 app.whenReady().then(() => {
   createWindow();
-
-  // ================= 创建系统托盘 =================
+  // 创建系统托盘
   const iconPath = path.join(__dirname, 'assets/icon.ico'); 
   tray = new Tray(iconPath);
-
   tray.setToolTip('超时专注');
-
-  // 3. 构建右键菜单
+  // 右键菜单
   const contextMenu = Menu.buildFromTemplate([
     { 
       label: '打开界面', 
@@ -63,41 +61,34 @@ app.whenReady().then(() => {
       }
     }
   ]);
-
-  // 4. 把菜单绑到托盘上
   tray.setContextMenu(contextMenu);
-
-  // 5. 监听鼠标双击事件：双击托盘图标，直接显示窗口
   tray.on('double-click', () => {
     if (mainWindow) {
       mainWindow.show();
-      mainWindow.focus(); // 顺便把窗口拉到最前面
+      mainWindow.focus(); // 拉到最前面
     }
   });
 
   setTimeout(checkForUpdates, 3000); // 过 3 秒钟再去检查更新
 });
 
-// --- 监听来自设置页面的"开机自启"指令 ---
+// 监听开机自启
 ipcMain.on('toggle-auto-start', (event, isEnable) => {
   app.setLoginItemSettings({
-    openAtLogin: isEnable, // true 为开启，false 为关闭
-    path: process.execPath // 告诉系统启动当前的 exe
+    openAtLogin: isEnable,
+    path: process.execPath
   });
 });
 
-// ================= 小浮窗功能 =================
-
-// 1. 接收进入小浮窗的指令
+// 小浮窗
+// 进入小浮窗
 ipcMain.on('enter-mini-mode', () => {
   if (mainWindow) {
-    // 记住当前窗口的大小和位置
+    // 记住窗口位置
     normalBounds = mainWindow.getBounds(); 
-
-    mainWindow.setMinimumSize(250, 180); // 设置最小尺寸，防止用户调整得太小
+    mainWindow.setMinimumSize(250, 180); // 设置最小尺寸
     mainWindow.setBounds({ width: 250, height: 180 }, true); 
-    
-    // 设置窗口始终置顶
+    // 置顶
     mainWindow.setAlwaysOnTop(true, 'floating'); 
   }
 });
@@ -115,22 +106,19 @@ ipcMain.on('exit-mini-mode', () => {
 
 // ================= 自动更新逻辑 =================
 function checkForUpdates() {
-  // 1. 配置：如果在本地开发测试，不要强行检查（会报错，因为没打包签名）
+  // 如果在本地开发测试，不要强行检查
   if (!app.isPackaged) return; 
-
-  // 2. 告诉更新器，静默下载，别打扰用户
+  // 静默下载
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
-
-  // 3. 监听：发现新版本
+  // 发现新版本
   autoUpdater.on('update-available', (info) => {
     // 可以在这里用 ipcRenderer 通知主界面显示一个小红点，暂时省略
     console.log('发现新版本，开始下载...');
   });
-
-  // 4. 监听：新版本下载完成！
+  // 新版本下载完成！
   autoUpdater.on('update-downloaded', (info) => {
-    // 弹出一个系统提示框告诉用户
+  // 弹出一个系统提示框告诉用户
     dialog.showMessageBox({
       type: 'info',
       title: '升级提示',
@@ -138,42 +126,81 @@ function checkForUpdates() {
       detail: '是否现在重启软件并安装更新？（如果不立即重启，将在下次启动时自动安装）',
       buttons: ['立即重启安装', '稍后提醒我']
     }).then((result) => {
-      // 用户点击了第一个按钮（立即重启安装）
+      // 立即重启安装
       if (result.response === 0) {
         isQuitting = true; // 绕过我们之前写的托盘假关闭逻辑
         autoUpdater.quitAndInstall(); // 退出并安装
       }
     });
   });
-
-  // 5. 监听：更新出错
+  // 更新出错
   autoUpdater.on('error', (err) => {
     console.error('更新检查出错:', err);
   });
-
-  // 开始执行检查！
+  // 执行检查
   autoUpdater.checkForUpdates();
 }
 
-ipcMain.on('mini-dock', () => {
-  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
-  mainWindow.setBounds({
-    x: screenWidth - 30, // 稍微多留一点（比如30px），确保鼠标能稳定抓到它
-    y: 200,
-    width: 250,   
-    height: 150  
-  }, true);
-  mainWindow.setOpacity(0.6);
+// 轮询函数
+function startMiniModePolling() {
+  if (miniModeTimer) clearInterval(miniModeTimer);
+  
+  miniModeTimer = setInterval(() => {
+    if (!mainWindow) return;
+
+    const { x: mouseX, y: mouseY } = screen.getCursorScreenPoint();
+    const { x: winX, y: winY, width: winW, height: winH } = mainWindow.getBounds();
+    const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
+
+    const buffer = isDocked ? 0 : 100; 
+
+    const isMouseInZone = 
+      mouseX >= (winX - buffer) && 
+      mouseX <= (winX + winW + buffer) &&
+      mouseY >= (winY - buffer) && 
+      mouseY <= (winY + winH + buffer);
+
+    if (isMouseInZone && isDocked) {
+      isDocked = false;
+      mainWindow.setBounds({
+        x: screenWidth - MINI_WIDTH - 10, 
+        width: MINI_WIDTH,
+        height: MINI_HEIGHT
+      }, true);
+      mainWindow.setOpacity(1.0);
+    } else if (!isMouseInZone && !isDocked) {
+      isDocked = true;
+      mainWindow.setBounds({
+        x: screenWidth - 20, 
+        width: MINI_WIDTH,
+        height: MINI_HEIGHT
+      }, true);
+      mainWindow.setOpacity(0.6);
+    }
+  }, 200); // 200ms 是一个兼顾反应速度和性能的完美平衡点
+}
+
+// 停止轮询
+function stopMiniModePolling() {
+  if (miniModeTimer) {
+    clearInterval(miniModeTimer);
+    miniModeTimer = null;
+  }
+}
+
+ipcMain.on('enter-mini-mode', () => {
+  isDocked = true; // 初始状态为缩进
+  startMiniModePolling(); // 进入时开始检测
 });
 
-ipcMain.on('mini-undock', () => {
-  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
-  mainWindow.setBounds({
-    x: screenWidth - MINI_WIDTH - 5, // 展开后的位置
-    y: 200,
-    width: MINI_WIDTH, 
-    height: MINI_HEIGHT
-  }, true);
-  mainWindow.setOpacity(1.0);
+ipcMain.on('exit-mini-mode', () => {
+  stopMiniModePolling(); // 退出时彻底销毁定时器，不再占用任何资源
+  
+  if (mainWindow) {
+    mainWindow.setOpacity(1.0);
+    if (normalBounds) {
+      mainWindow.setBounds(normalBounds, true);
+    }
+    mainWindow.setAlwaysOnTop(false);
+  }
 });
-

@@ -385,42 +385,14 @@ function toggleAutoStart(isEnable) {
 
 // 进入小浮窗模式
 function enterMiniMode() {
-  // 1. 隐藏主界面，显示小浮窗
   document.querySelector('.app-container').style.display = 'none';
   document.getElementById('mini-view').style.display = 'flex';
-  
-  // 2. 告诉主进程去改变窗口大小
   ipcRenderer.send('enter-mini-mode');
 }
 
-// 退出小浮窗模式（绑定给 mini-view 里的还原按钮）
+// 退出小浮窗模式
 function exitMiniMode() {
-  // 1. 隐藏小浮窗，恢复主界面
   document.getElementById('mini-view').style.display = 'none';
-  // 注意：你的 app-container 原本的 display 是 block 还是 flex？如果是 flex 这里就写 flex
   document.querySelector('.app-container').style.display = 'flex'; 
-  
-  // 2. 告诉主进程还原窗口大小
   ipcRenderer.send('exit-mini-mode');
 }
-
-// 替换掉之前 miniView.addEventListener 那段
-let dockTimer = null;
-
-// 监听整个文档的移入
-document.addEventListener('mouseenter', () => {
-    if (document.getElementById('mini-view').style.display === 'flex') {
-        clearTimeout(dockTimer); // 只要进来了，就取消缩回计划
-        ipcRenderer.send('mini-undock');
-    }
-});
-
-// 监听整个文档的移出
-document.addEventListener('mouseleave', () => {
-    if (document.getElementById('mini-view').style.display === 'flex') {
-        // 增加 300ms 延迟，防止鼠标划过边缘或标题栏时误触
-        dockTimer = setTimeout(() => {
-            ipcRenderer.send('mini-dock');
-        }, 300); 
-    }
-});
